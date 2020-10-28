@@ -1,5 +1,26 @@
 import java.io.*; 
 import java.net.*; 
+import java.util.Date;
+
+class User{
+  private String name;
+  private int secsConnected;
+  private Date connectTime;
+
+  User(String s){
+      this.name = s;
+      this.connectTime = new Date();
+  }
+
+  public String getName(){
+    return this.name;
+  }
+
+  public Date connectTime(){
+    return connectTime;
+  }
+  
+} 
 
 class TCPServer { 
 
@@ -21,6 +42,8 @@ class TCPServer {
 
            DataOutputStream  outToClient = 
              new DataOutputStream(connectionSocket.getOutputStream()); 
+
+           outToClient.writeBytes("Connection successful \n");
 
            clientSentence = inFromClient.readLine(); 
 
