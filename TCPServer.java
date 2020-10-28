@@ -1,6 +1,9 @@
 import java.io.*; 
 import java.net.*; 
 import java.util.Date;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 
 class User{
   private String name;
@@ -46,10 +49,21 @@ class TCPServer {
            outToClient.writeBytes("Connection successful \n");
 
            clientSentence = inFromClient.readLine(); 
+           
+           if(clientSentence.contains("exit")){
 
-           capitalizedSentence = clientSentence.toUpperCase() + '\n'; 
-
-           outToClient.writeBytes(capitalizedSentence); 
+           }
+           else{
+            ScriptEngineManager mgr = new ScriptEngineManager();
+            ScriptEngine engine = mgr.getEngineByName("JavaScript");
+            String result = "";
+            try{
+              result = engine.eval(clientSentence).toString();  
+            }catch(ScriptException e){
+              result = e.getMessage();
+            }
+            outToClient.writeBytes(result); 
+           }
         } 
     } 
 } 
