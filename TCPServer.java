@@ -47,7 +47,7 @@ class TCPServer {
              new DataOutputStream(connectionSocket.getOutputStream()); 
 
            outToClient.writeBytes("Connection successful \n");
-
+           outToClient.flush();
            clientSentence = inFromClient.readLine(); 
            
            if(clientSentence.contains("exit")){
@@ -62,7 +62,9 @@ class TCPServer {
             }catch(ScriptException e){
               result = e.getMessage();
             }
+            System.out.println(result);
             outToClient.writeBytes(result); 
+            outToClient.close();
            }
         } 
     } 

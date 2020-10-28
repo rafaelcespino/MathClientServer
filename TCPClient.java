@@ -10,7 +10,7 @@ class TCPClient {
     public static void main(String argv[]) throws Exception 
     { 
         String sentence, welcomeMessage; 
-        String modifiedSentence; 
+        String mathResult; 
 
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
 
@@ -25,14 +25,15 @@ class TCPClient {
         System.out.println(welcomeMessage);
 
         sentence = inFromUser.readLine();
+        if(sentence.equals("exit")){
+          clientSocket.close();
+        }
         
         outToServer.writeBytes(sentence + '\n'); 
 
-        modifiedSentence = inFromServer.readLine(); 
+        mathResult = inFromServer.readLine(); 
 
-        System.out.println("FROM SERVER: " + modifiedSentence); 
-
-        clientSocket.close(); 
+        System.out.println("FROM SERVER: " + mathResult); 
                          
           } 
       }
