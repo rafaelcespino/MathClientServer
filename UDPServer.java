@@ -1,5 +1,7 @@
 import java.io.*; 
-import java.net.*; 
+import java.net.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -11,12 +13,16 @@ class UDPServer {
   static class User{
     private String name;
     private String secsAttached;
-    private Date timeConnected;
+    private String timeConnected;
   
     User(String name, String secs){
       this.name = name;
       this.secsAttached = secs;
-      timeConnected = new Date();
+
+      //constructor gets current time and converts it into string format 
+      Date date = new Date();
+      DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+      this.timeConnected = dateFormat.format(date);
     }
   
     public String getName(){
@@ -27,7 +33,7 @@ class UDPServer {
       return this.secsAttached;
     }
   
-    public Date getTime(){
+    public String getTime(){
       return this.timeConnected;
     }
   }
@@ -54,6 +60,7 @@ class UDPServer {
            String name = separatedMessage[0]; //first item in array is the name of the sender
            String equation = separatedMessage[1]; //second item in array is the equation to be evaluated
            String secsAttached = separatedMessage[2];
+           
 
            InetAddress IPAddress = receivePacket.getAddress(); 
            int port = receivePacket.getPort(); 
@@ -62,11 +69,17 @@ class UDPServer {
            ScriptEngineManager mgr = new ScriptEngineManager();
            ScriptEngine engine = mgr.getEngineByName("JavaScript");
 
+           
+
            //logs the user on exit by creating a user object and storing it in the user log arraylist
-           if(equation.contains("exit"))
+           if(equation.equals("exit") || equation.equals("Exit"))
            {
-              
+              System.out.println("Disconnected");
               User newUser = new User(name, secsAttached);
+              userLogs.add(newUser);
+              System.out.println("User " + name + " has logged off at " + newUser.getTime() + " after " 
+              + secsAttached + " seconds. ");
+
            }
            else {
              try {
@@ -81,8 +94,7 @@ class UDPServer {
            }
    
            DatagramPacket sendPacket = 
-              new DatagramPacket(sendData, sendData.length, IPAddress, 
-                                port); 
+              new DatagramPacket(sendData, sendData.length, IPAddress, port); 
    
            serverSocket.send(sendPacket); 
          } 

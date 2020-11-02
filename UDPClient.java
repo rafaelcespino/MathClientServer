@@ -30,21 +30,25 @@ class UDPClient {
 
       //if the user types exit, send dataCSV with the total connection time before closing the socket and ending the program
       if(equation.equals("Exit") || equation.equals("exit")){
+        //calculate total time attached to server and send it to the server for logging
         Instant end = Instant.now();
         Duration connectionTime = Duration.between(start, end);
         String dataCSV = name+ "," + "Exit" + "," + connectionTime.toSeconds();
         sendData = dataCSV.getBytes();         
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+        clientSocket.send(sendPacket);
         clientSocket.close(); 
         break;
       }
 
+      else{
       //puts all data together as a CSV in order of name, equation, and time elapsed
       String dataCSV = name+ "," + equation + ",0"; //time elapsed is zero since the connection hasn't been ended 
       sendData = dataCSV.getBytes();         
       //Datagram contains the equation, length, IP address, and port number
       DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876); 
-    	clientSocket.send(sendPacket); 
+      clientSocket.send(sendPacket); 
+      }
       
       //receives the answer and stores into answer variable
     	DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); 
