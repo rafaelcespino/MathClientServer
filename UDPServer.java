@@ -14,12 +14,12 @@ class UDPServer {
     private String name;
     private String secsAttached;
     private String timeConnected;
-  
-    User(String name, String secs){
+    private ArrayList<String> queries;
+    User(String name){
       this.name = name;
-      this.secsAttached = secs;
+      queries = new ArrayList<String>();
 
-      //constructor gets current time and converts it into string format 
+      //constructor gets current time and converts it into string format when the user is created 
       Date date = new Date();
       DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
       this.timeConnected = dateFormat.format(date);
@@ -35,6 +35,14 @@ class UDPServer {
   
     public String getTime(){
       return this.timeConnected;
+    }
+
+    public void setTime(String seconds){
+      this.secsAttached = seconds;
+    }
+
+    public void addQuery(String query){
+      this.queries.add(query);
     }
   }
 
@@ -60,6 +68,19 @@ class UDPServer {
            String name = separatedMessage[0]; //first item in array is the name of the sender
            String equation = separatedMessage[1]; //second item in array is the equation to be evaluated
            String secsAttached = separatedMessage[2];
+
+           //check to see if the connected user is new 
+           boolean existingUser = false;
+           for(int i = 0; i < userLogs.size(); i++){
+             if(userLogs.get(i).getName().equals(name))
+                existingUser = true;
+           }
+
+           //if connected user is new, add to arrayList
+           if(existingUser == false){
+              User newUser = new User(name);
+              userLogs.add(newUser);
+           }
            
 
            InetAddress IPAddress = receivePacket.getAddress(); 
@@ -74,18 +95,34 @@ class UDPServer {
            //logs the user on exit by creating a user object and storing it in the user log arraylist
            if(equation.equals("exit") || equation.equals("Exit"))
            {
+              String logOffTime = "";
               System.out.println("Disconnected");
-              User newUser = new User(name, secsAttached);
-              userLogs.add(newUser);
-              System.out.println("User " + name + " has logged off at " + newUser.getTime() + " after " 
-              + secsAttached + " seconds. ");
+              //set the seconds attached of the logged off user
+              for(int i = 0; i < userLogs.size(); i++){
+                if(userLogs.get(i).getName().equals(name)){
+                   userLogs.get(i).setTime(secsAttached);
+                   logOffTime = userLogs.get(i).getTime().toString();
+                }
+              }
+
+              System.out.println("User " + name + " has logged off after " 
+              + secsAttached + " seconds. Initially connected at " + logOffTime);
 
            }
            else {
              try {
-              System.out.println(name);
+              //use the Script Engine Manager to evaluate the equation using the Javascript eval function
               String result = engine.eval(equation).toString();
               sendData = result.getBytes(); 
+              //add the query to the list of user's queries
+              for(int i = 0; i < userLogs.size(); i++){
+                if(userLogs.get(i).getName().equals(name)){
+                  userLogs.get(i).addQuery(equation);
+                  System.out.println("Added " + equation+ " query for user " + name);
+                }
+
+              }
+              //throw an exception if the received message from the client cannot be evaluated i.e. user sends words
              } catch (ScriptException e) {
                System.out.println("Exception " + e);
                String exceptionMessage = "Error: Please enter a valid mathematical expression";
@@ -93,9 +130,8 @@ class UDPServer {
              }
            }
    
-           DatagramPacket sendPacket = 
-              new DatagramPacket(sendData, sendData.length, IPAddress, port); 
-   
+           //send equation answer back to the client
+           DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port); 
            serverSocket.send(sendPacket); 
          } 
      } 

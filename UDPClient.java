@@ -52,11 +52,10 @@ class UDPClient {
       
       //receives the answer and stores into answer variable
     	DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); 
-    	  
     	clientSocket.receive(receivePacket); 
-    	  
     	String answer = new String(receivePacket.getData(), 0, receivePacket.getLength()); 
-    	  
+        
+      //print answer to the user before restarting the loop
       System.out.println("FROM SERVER:" + answer); 
       
       }
