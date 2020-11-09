@@ -1,0 +1,1 @@
+Rafael,12 seconds attached,connected at 2020-14-09 10:14:04, queries: [31-2,51-2,561610-2]

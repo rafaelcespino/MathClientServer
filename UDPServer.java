@@ -44,6 +44,14 @@ class UDPServer {
     public void addQuery(String query){
       this.queries.add(query);
     }
+
+    public int getQuerySize(){
+      return this.queries.size();
+    }
+
+    public String getQuery(int index){
+      return this.queries.get(index);
+    }
   }
 
   public static void main(String args[]) throws Exception 
@@ -53,6 +61,11 @@ class UDPServer {
       ArrayList<User> userLogs = new ArrayList<User>();
       byte[] receiveData = new byte[1024]; 
       byte[] sendData  = new byte[1024]; 
+
+      //File where logs will be written to
+      File logFile = new File("logFile.txt");
+      logFile.createNewFile();
+      FileWriter writer = new FileWriter(logFile, true);
   
       while(true) 
         { 
@@ -95,11 +108,13 @@ class UDPServer {
            //logs the user on exit by creating a user object and storing it in the user log arraylist
            if(equation.equals("exit") || equation.equals("Exit"))
            {
+              int userIndex = 0;
               String logOffTime = "";
               System.out.println("Disconnected");
               //set the seconds attached of the logged off user
               for(int i = 0; i < userLogs.size(); i++){
                 if(userLogs.get(i).getName().equals(name)){
+                   userIndex = i;
                    userLogs.get(i).setTime(secsAttached);
                    logOffTime = userLogs.get(i).getTime().toString();
                 }
@@ -108,6 +123,19 @@ class UDPServer {
               System.out.println("User " + name + " has logged off after " 
               + secsAttached + " seconds. Initially connected at " + logOffTime);
 
+              writer.write(name + ", ");
+              writer.write(secsAttached + " seconds attached, ");
+              writer.write("connected at " + logOffTime + ", queries: [");
+              for(int i = 0; i < userLogs.get(userIndex).getQuerySize(); i++)
+              {
+                  if(i == userLogs.get(userIndex).getQuerySize() - 1)
+                    writer.write(userLogs.get(userIndex).getQuery(i));
+                  else
+                    writer.write(userLogs.get(userIndex).getQuery(i) + ",");
+              }
+              writer.write("]");
+              writer.flush();
+              writer.close();
            }
            else {
              try {
