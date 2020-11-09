@@ -65,7 +65,7 @@ class UDPServer {
       //File where logs will be written to
       File logFile = new File("logFile.txt");
       logFile.createNewFile();
-      FileWriter writer = new FileWriter(logFile, true);
+      
   
       while(true) 
         { 
@@ -108,6 +108,7 @@ class UDPServer {
            //logs the user on exit by creating a user object and storing it in the user log arraylist
            if(equation.equals("exit") || equation.equals("Exit"))
            {
+              FileWriter writer = new FileWriter(logFile, true);
               int userIndex = 0;
               String logOffTime = "";
               System.out.println("Disconnected");
@@ -123,9 +124,12 @@ class UDPServer {
               System.out.println("User " + name + " has logged off after " 
               + secsAttached + " seconds. Initially connected at " + logOffTime);
 
+              //write the name, secs attached, connection time, and all logged queries in text file
               writer.write(name + ", ");
               writer.write(secsAttached + " seconds attached, ");
               writer.write("connected at " + logOffTime + ", queries: [");
+
+              //loop through logged queries to write each one in log file
               for(int i = 0; i < userLogs.get(userIndex).getQuerySize(); i++)
               {
                   if(i == userLogs.get(userIndex).getQuerySize() - 1)
@@ -133,7 +137,9 @@ class UDPServer {
                   else
                     writer.write(userLogs.get(userIndex).getQuery(i) + ",");
               }
-              writer.write("]");
+
+              //create new line to write the next user log
+              writer.write("] \n");
               writer.flush();
               writer.close();
            }
